@@ -1,103 +1,104 @@
-import Image from "next/image";
+import Link from "next/link";
+import { getServerAuth } from "@/auth";
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerAuth();
+  const isLoggedIn = Boolean(session?.user);
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="relative min-h-[calc(100vh-120px)] overflow-hidden">
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/40 via-black to-black" />
+        <div className="pointer-events-none absolute -top-40 -left-40 h-[32rem] w-[32rem] rounded-full bg-fuchsia-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-40 -right-40 h-[32rem] w-[32rem] rounded-full bg-cyan-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,transparent_20%,rgba(255,255,255,0.04)_21%,transparent_22%)] bg-[length:22px_22px] opacity-40" />
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
+      <section className="mx-auto flex max-w-5xl flex-col items-center px-6 py-16 text-center">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/80 backdrop-blur">
+          <span>✨ New</span>
+          <span className="text-white/60">AI vibes → instant playlists</span>
+        </div>
+
+        <h1 className="mt-6 bg-gradient-to-b from-white via-white to-white/70 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent sm:text-6xl">
+          Mood.ai
+        </h1>
+        <p className="mt-2 text-2xl font-semibold text-white/90 sm:text-3xl">
+          AI-Powered Playlist Generator
+        </p>
+        <p className="mt-4 max-w-2xl text-base text-white/70 sm:text-lg">
+          Type a mood, scene, or a few emojis. We'll conjure tracks with AI and build the perfect playlist for you.
+        </p>
+
+        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
+          {!isLoggedIn ? (
+            <>
+              <a
+                href="/api/auth/signin/spotify?callbackUrl=/generate"
+                className="group relative inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-black transition-transform active:scale-95"
+              >
+                <span className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 blur-md opacity-70 group-hover:opacity-90 transition-opacity" />
+                <span className="rounded-full bg-white px-6 py-3">Login with Spotify</span>
+              </a>
+              <Link
+                href="/generate"
+                className="rounded-full border border-white/15 px-6 py-3 text-sm text-white/80 hover:text-white/95 hover:border-white/25"
+              >
+                Try as Guest
+              </Link>
+            </>
+          ) : (
+            <Link
+              href="/generate"
+              className="group relative inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-black transition-transform active:scale-95"
+            >
+              <span className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 blur-md opacity-70 group-hover:opacity-90 transition-opacity" />
+              <span className="rounded-full bg-white px-6 py-3">Open Generator</span>
+            </Link>
+          )}
           <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#how-it-works"
+            className="rounded-full border border-white/15 px-6 py-3 text-sm text-white/80 hover:text-white/95 hover:border-white/25"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
+            How it works
           </a>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <div className="mt-12 grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4 text-left">
+            <div className="text-2xl font-bold text-white">10–50</div>
+            <div className="text-xs text-white/60">songs per playlist</div>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4 text-left">
+            <div className="text-2xl font-bold text-white">AI</div>
+            <div className="text-xs text-white/60">powered by Mood.ai</div>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4 text-left">
+            <div className="text-2xl font-bold text-white">1‑click</div>
+            <div className="text-xs text-white/60">create on Spotify</div>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-4 text-left">
+            <div className="text-2xl font-bold text-white">Free</div>
+            <div className="text-xs text-white/60">dev preview</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="how-it-works" className="mx-auto mb-12 mt-4 max-w-5xl px-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+            <div className="text-sm font-semibold text-white">1. Describe your vibe</div>
+            <div className="mt-2 text-sm text-white/70">Late night drive, soft study beats, summer picnic 🌆🎧☀️</div>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+            <div className="text-sm font-semibold text-white">2. We suggest tracks</div>
+            <div className="mt-2 text-sm text-white/70">AI curates titles and artists that match your mood.</div>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+            <div className="text-sm font-semibold text-white">3. Push to Spotify</div>
+            <div className="mt-2 text-sm text-white/70">One click to create and add all tracks automatically.</div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
