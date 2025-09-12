@@ -33,12 +33,9 @@ export default function GeneratePage() {
 	const [createdLink, setCreatedLink] = useState<string | null>(null);
 	const [isGuestMode, setIsGuestMode] = useState(!session);
 	
-	// New state for genre and time period selection
+	// New state for genre selection
 	const [selectedLanguage, setSelectedLanguage] = useState("");
 	const [selectedGenre, setSelectedGenre] = useState("");
-	const [selectedTimePeriod, setSelectedTimePeriod] = useState("");
-	const [customYearRange, setCustomYearRange] = useState({ start: "", end: "" });
-	const [timePeriodType, setTimePeriodType] = useState<"decade" | "specific-year" | "year-range">("decade");
 
 	// Language/Region options
 	const languages = [
@@ -106,12 +103,6 @@ export default function GeneratePage() {
 		setSelectedGenre(""); // Reset genre selection when language changes
 	};
 
-	// Time period options
-	const decades = [
-		"1950s", "1960s", "1970s", "1980s", "1990s", "2000s", "2010s", "2020s"
-	];
-
-	const recentYears = Array.from({ length: 25 }, (_, i) => (2024 - i).toString());
 
 	async function handleGenerate(e: React.FormEvent) {
 		e.preventDefault();
@@ -119,16 +110,6 @@ export default function GeneratePage() {
 		setError(null);
 		setPlaylist(null);
 		setCreatedLink(null);
-		
-		// Build time period string based on selection
-		let timePeriodString = "";
-		if (timePeriodType === "decade" && selectedTimePeriod) {
-			timePeriodString = selectedTimePeriod;
-		} else if (timePeriodType === "specific-year" && selectedTimePeriod) {
-			timePeriodString = selectedTimePeriod;
-		} else if (timePeriodType === "year-range" && customYearRange.start && customYearRange.end) {
-			timePeriodString = `${customYearRange.start}-${customYearRange.end}`;
-		}
 		
 		try {
 			const res = await fetch("/api/generate", {
@@ -141,8 +122,7 @@ export default function GeneratePage() {
 					numSongs, 
 					isPublic,
 					language: selectedLanguage,
-					genre: selectedGenre,
-					timePeriod: timePeriodString
+					genre: selectedGenre
 				}),
 			});
 			if (!res.ok) throw new Error("Request failed");
@@ -324,102 +304,6 @@ export default function GeneratePage() {
 								)}
 							</div>
 
-							{/* Time Period Selection */}
-							<div>
-								<label className="block text-sm font-medium mb-2 text-white">Time Period (Optional)</label>
-								
-								{/* Time Period Type Tabs */}
-								<div className="flex space-x-1 mb-3 bg-white/5 rounded-lg p-1">
-									<button
-										type="button"
-										onClick={() => setTimePeriodType("decade")}
-										className={`flex-1 py-2 px-3 text-sm rounded-md transition-colors ${
-											timePeriodType === "decade" 
-												? "bg-fuchsia-500 text-white" 
-												: "text-white/70 hover:text-white"
-										}`}
-									>
-										Decade
-									</button>
-									<button
-										type="button"
-										onClick={() => setTimePeriodType("specific-year")}
-										className={`flex-1 py-2 px-3 text-sm rounded-md transition-colors ${
-											timePeriodType === "specific-year" 
-												? "bg-fuchsia-500 text-white" 
-												: "text-white/70 hover:text-white"
-										}`}
-									>
-										Year
-									</button>
-									<button
-										type="button"
-										onClick={() => setTimePeriodType("year-range")}
-										className={`flex-1 py-2 px-3 text-sm rounded-md transition-colors ${
-											timePeriodType === "year-range" 
-												? "bg-fuchsia-500 text-white" 
-												: "text-white/70 hover:text-white"
-										}`}
-									>
-										Range
-									</button>
-								</div>
-
-								{/* Time Period Inputs */}
-								{timePeriodType === "decade" && (
-									<select
-										value={selectedTimePeriod}
-										onChange={(e) => setSelectedTimePeriod(e.target.value)}
-										className="w-full rounded border border-white/15 bg-transparent p-3 text-white focus:border-fuchsia-400 focus:outline-none"
-									>
-										<option value="">Any decade</option>
-										{decades.map((decade) => (
-											<option key={decade} value={decade} className="bg-gray-800 text-white">
-												{decade}
-											</option>
-										))}
-									</select>
-								)}
-
-								{timePeriodType === "specific-year" && (
-									<select
-										value={selectedTimePeriod}
-										onChange={(e) => setSelectedTimePeriod(e.target.value)}
-										className="w-full rounded border border-white/15 bg-transparent p-3 text-white focus:border-fuchsia-400 focus:outline-none"
-									>
-										<option value="">Any year</option>
-										{recentYears.map((year) => (
-											<option key={year} value={year} className="bg-gray-800 text-white">
-												{year}
-											</option>
-										))}
-									</select>
-								)}
-
-								{timePeriodType === "year-range" && (
-									<div className="flex gap-3">
-										<input
-											type="number"
-											placeholder="Start year"
-											value={customYearRange.start}
-											onChange={(e) => setCustomYearRange(prev => ({ ...prev, start: e.target.value }))}
-											min="1950"
-											max="2024"
-											className="flex-1 rounded border border-white/15 bg-transparent p-3 text-white placeholder-white/50 focus:border-fuchsia-400 focus:outline-none"
-										/>
-										<span className="text-white/70 self-center">to</span>
-										<input
-											type="number"
-											placeholder="End year"
-											value={customYearRange.end}
-											onChange={(e) => setCustomYearRange(prev => ({ ...prev, end: e.target.value }))}
-											min="1950"
-											max="2024"
-											className="flex-1 rounded border border-white/15 bg-transparent p-3 text-white placeholder-white/50 focus:border-fuchsia-400 focus:outline-none"
-										/>
-									</div>
-								)}
-							</div>
 						</div>
 
 						{/* Basic Settings */}
