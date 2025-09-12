@@ -283,7 +283,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Made with ❤️ by [Ayush Raghuvanshi](https://github.com/AyushRaghuvanshi04)**
+**Made with by [Ayush Raghuvanshi](https://github.com/AyushRaghuvanshi04)**
 
 *Turning ideas into apps ✨ | AI + Code + Content | Still figuring it all out 🚀*
 

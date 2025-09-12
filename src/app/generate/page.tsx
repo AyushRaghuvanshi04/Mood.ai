@@ -31,7 +31,8 @@ export default function GeneratePage() {
 	const [error, setError] = useState<string | null>(null);
 	const [playlist, setPlaylist] = useState<Playlist | null>(null);
 	const [createdLink, setCreatedLink] = useState<string | null>(null);
-	const [isGuestMode, setIsGuestMode] = useState(!session);
+	// Use session directly instead of separate isGuestMode state
+	const isGuestMode = !session || status !== "authenticated";
 	
 	// New state for genre selection
 	const [selectedLanguage, setSelectedLanguage] = useState("");
@@ -161,14 +162,6 @@ export default function GeneratePage() {
 		}
 	}
 
-	// Update guest mode when session changes
-	useEffect(() => {
-		if (status === "authenticated" && isGuestMode) {
-			setIsGuestMode(false);
-		} else if (status === "unauthenticated" && !isGuestMode) {
-			setIsGuestMode(true);
-		}
-	}, [status, isGuestMode]);
 
 	return (
 		<div className="relative max-w-full overflow-hidden">
@@ -184,7 +177,7 @@ export default function GeneratePage() {
 				<div className="flex items-center justify-between">
 					<h1 className="bg-gradient-to-b from-white via-white to-white/70 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent sm:text-4xl">Mood.ai Generator</h1>
 					<div className="flex items-center gap-4">
-						{session ? (
+					{session ? (
 							<div className="flex items-center gap-2 text-sm text-white/80">
 								<div className="w-2 h-2 rounded-full bg-green-400"></div>
 								<span>Signed in as {session.user?.name || session.user?.email}</span>
@@ -204,6 +197,7 @@ export default function GeneratePage() {
 						: "Describe your mood, customize options, and let Mood.ai generate the perfect playlist. Then push it to Spotify."
 					}
 				</p>
+				
 
 				{!session && (
 					<div className="rounded-xl border border-yellow-300/20 bg-yellow-400/10 p-4">
@@ -214,10 +208,9 @@ export default function GeneratePage() {
 							</div>
 							<Link 
 								href="/api/auth/signin/spotify?callbackUrl=/generate"
-								className="group relative inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-black transition-transform active:scale-95"
+								className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
 							>
-								<span className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 blur-md opacity-70 group-hover:opacity-90 transition-opacity" />
-								<span className="rounded-full bg-white px-4 py-2">Sign In</span>
+								Sign In
 							</Link>
 						</div>
 					</div>
@@ -234,18 +227,18 @@ export default function GeneratePage() {
 				)}
 
 				<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-					<form onSubmit={handleGenerate} className="space-y-6 rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur">
+					<form onSubmit={handleGenerate} className="space-y-6 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm shadow-xl">
 						{/* Mood Prompt Section */}
 						<div>
-							<label className="block text-sm font-medium mb-1 text-white">Mood prompt</label>
+							<label className="block text-sm font-medium mb-3 text-white">Mood prompt</label>
 							<textarea
-								className="w-full rounded border border-white/15 bg-transparent p-3 text-white placeholder-white/50"
+								className="w-full rounded-lg border border-white/20 bg-white/5 backdrop-blur-sm p-3 text-white placeholder-white/50 focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-200 resize-none"
 								rows={4}
 								value={prompt}
 								onChange={(e) => setPrompt(e.target.value)}
 								placeholder="e.g., late night drive under city lights, workout motivation, chill study vibes"
 							/>
-							<div className="text-xs text-white/50 mt-1">Describe your mood with vivid descriptors and emojis ✨</div>
+							<div className="text-xs text-white/60 mt-2">Describe your mood with vivid descriptors and emojis ✨</div>
 						</div>
 
 						{/* Language, Genre and Time Period Selection */}
@@ -254,27 +247,34 @@ export default function GeneratePage() {
 							
 							{/* Language Selection */}
 							<div>
-								<label className="block text-sm font-medium mb-2 text-white">Language/Region (Optional)</label>
-								<select
-									value={selectedLanguage}
-									onChange={(e) => handleLanguageChange(e.target.value)}
-									className="w-full rounded border border-white/15 bg-transparent p-3 text-white focus:border-fuchsia-400 focus:outline-none"
-								>
-									<option value="">Any language</option>
-									{languages.map((lang) => (
-										<option key={lang.value} value={lang.value} className="bg-gray-800 text-white">
-											{lang.flag} {lang.label}
-										</option>
-									))}
-								</select>
-								<div className="text-xs text-white/50 mt-1">
+								<label className="block text-sm font-medium mb-3 text-white">Language/Region (Optional)</label>
+								<div className="relative">
+									<select
+										value={selectedLanguage}
+										onChange={(e) => handleLanguageChange(e.target.value)}
+										className="w-full rounded-lg border border-white/20 bg-white/5 backdrop-blur-sm p-3 text-white focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-200 appearance-none cursor-pointer"
+									>
+										<option value="" className="bg-gray-800 text-white">Any language</option>
+										{languages.map((lang) => (
+											<option key={lang.value} value={lang.value} className="bg-gray-800 text-white">
+												{lang.flag} {lang.label}
+											</option>
+										))}
+									</select>
+									<div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+										<svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+										</svg>
+									</div>
+								</div>
+								<div className="text-xs text-white/60 mt-2">
 									Choose a language/region to see relevant genres
 								</div>
 							</div>
 
 							{/* Genre Selection */}
 							<div>
-								<label className="block text-sm font-medium mb-2 text-white">
+								<label className="block text-sm font-medium mb-3 text-white">
 									Genre (Optional)
 									{selectedLanguage && (
 										<span className="text-xs text-fuchsia-300 ml-2">
@@ -282,23 +282,30 @@ export default function GeneratePage() {
 										</span>
 									)}
 								</label>
-								<select
-									value={selectedGenre}
-									onChange={(e) => setSelectedGenre(e.target.value)}
-									className="w-full rounded border border-white/15 bg-transparent p-3 text-white focus:border-fuchsia-400 focus:outline-none"
-									disabled={!selectedLanguage}
-								>
-									<option value="">
-										{selectedLanguage ? `Any ${languages.find(l => l.value === selectedLanguage)?.label} genre` : "Select a language first"}
-									</option>
-									{getCurrentGenres().map((genre) => (
-										<option key={genre} value={genre} className="bg-gray-800 text-white">
-											{genre}
+								<div className="relative">
+									<select
+										value={selectedGenre}
+										onChange={(e) => setSelectedGenre(e.target.value)}
+										className="w-full rounded-lg border border-white/20 bg-white/5 backdrop-blur-sm p-3 text-white focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-200 appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+										disabled={!selectedLanguage}
+									>
+										<option value="" className="bg-gray-800 text-white">
+											{selectedLanguage ? `Any ${languages.find(l => l.value === selectedLanguage)?.label} genre` : "Select a language first"}
 										</option>
-									))}
-								</select>
+										{getCurrentGenres().map((genre) => (
+											<option key={genre} value={genre} className="bg-gray-800 text-white">
+												{genre}
+											</option>
+										))}
+									</select>
+									<div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+										<svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+										</svg>
+									</div>
+								</div>
 								{!selectedLanguage && (
-									<div className="text-xs text-yellow-200 mt-1">
+									<div className="text-xs text-yellow-200 mt-2">
 										💡 Select a language above to see relevant genres
 									</div>
 								)}
@@ -309,28 +316,47 @@ export default function GeneratePage() {
 						{/* Basic Settings */}
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 							<div>
-								<label className="block text-sm font-medium mb-1 text-white">Playlist title</label>
-								<input className="w-full rounded border border-white/15 bg-transparent p-2 text-white placeholder-white/50" value={title} onChange={(e) => setTitle(e.target.value)} />
+								<label className="block text-sm font-medium mb-3 text-white">Playlist title</label>
+								<input 
+									className="w-full rounded-lg border border-white/20 bg-white/5 backdrop-blur-sm p-3 text-white placeholder-white/50 focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-200" 
+									value={title} 
+									onChange={(e) => setTitle(e.target.value)} 
+								/>
 							</div>
 							<div>
-								<label className="block text-sm font-medium mb-1 text-white">Number of songs: <span className="font-semibold">{numSongs}</span></label>
+								<label className="block text-sm font-medium mb-3 text-white">Number of songs: <span className="font-semibold text-fuchsia-300">{numSongs}</span></label>
 								<input
 									type="range"
 									min={5}
 									max={50}
 									step={5}
-									className="w-full accent-fuchsia-400"
+									className="w-full accent-fuchsia-400 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
 									value={numSongs}
 									onChange={(e) => setNumSongs(parseInt(e.target.value || "0", 10))}
 								/>
+								<div className="flex justify-between text-xs text-white/60 mt-1">
+									<span>5</span>
+									<span>50</span>
+								</div>
 							</div>
 							<div className="sm:col-span-2">
-								<label className="block text-sm font-medium mb-1 text-white">Description</label>
-								<input className="w-full rounded border border-white/15 bg-transparent p-2 text-white placeholder-white/50" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Generated by Mood.ai" />
+								<label className="block text-sm font-medium mb-3 text-white">Description</label>
+								<input 
+									className="w-full rounded-lg border border-white/20 bg-white/5 backdrop-blur-sm p-3 text-white placeholder-white/50 focus:border-fuchsia-400 focus:outline-none focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-200" 
+									value={description} 
+									onChange={(e) => setDescription(e.target.value)} 
+									placeholder="Generated by Mood.ai" 
+								/>
 							</div>
 							{!isGuestMode && (
-								<div className="flex items-center gap-2">
-									<input id="public" type="checkbox" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
+								<div className="flex items-center gap-3 sm:col-span-2">
+									<input 
+										id="public" 
+										type="checkbox" 
+										checked={isPublic} 
+										onChange={(e) => setIsPublic(e.target.checked)}
+										className="w-4 h-4 text-fuchsia-400 bg-white/5 border-white/20 rounded focus:ring-fuchsia-400 focus:ring-2"
+									/>
 									<label htmlFor="public" className="text-sm text-white">Public playlist</label>
 								</div>
 							)}
@@ -339,25 +365,24 @@ export default function GeneratePage() {
 							<button
 								type="submit"
 								disabled={loading}
-								className="group relative inline-flex items-center justify-center rounded-full px-6 py-2 text-sm font-semibold text-black transition-transform active:scale-95 disabled:opacity-60"
+								className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 px-6 py-2 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-60 disabled:hover:scale-100"
 							>
-								<span className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 blur-md opacity-70 group-hover:opacity-90 transition-opacity" />
-								<span className="rounded-full bg-white px-6 py-2">{loading ? "Mood.ai is working..." : "Generate with Mood.ai"}</span>
+								{loading ? "Mood.ai is working..." : "Generate with Mood.ai"}
 							</button>
 							<Link href="/" className="text-sm text-white/80 underline hover:text-white">Cancel</Link>
 						</div>
 					</form>
 
 					<div className="space-y-4">
-						<div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur">
-							<div className="p-4 border-b border-white/10">
-								<h2 className="font-semibold text-white">Preview</h2>
+						<div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm shadow-xl">
+							<div className="p-6 border-b border-white/10">
+								<h2 className="text-lg font-semibold text-white">Preview</h2>
 							</div>
 							{!playlist ? (
-								<div className="p-4 text-sm text-white/60">No playlist yet. Generate one to preview tracks.</div>
+								<div className="p-6 text-sm text-white/60">No playlist yet. Generate one to preview tracks.</div>
 							) : (
 								<>
-									<div className="flex gap-4 p-4 items-center">
+									<div className="flex gap-4 p-6 items-center">
 										<img src={playlist.imageUrl} alt="cover" className="w-24 h-24 rounded object-cover" />
 										<div className="flex-1">
 											<h3 className="text-lg font-medium text-white">{playlist.name}</h3>
@@ -388,9 +413,8 @@ export default function GeneratePage() {
 											) : createdLink ? (
 												<a href={createdLink} target="_blank" className="text-sm underline text-white mt-2 inline-block">Open on Spotify</a>
 											) : (
-												<button onClick={handleCreateOnSpotify} disabled={creating} className="group relative inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-black transition-transform active:scale-95 disabled:opacity-60 mt-2">
-													<span className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 blur-md opacity-70 group-hover:opacity-90 transition-opacity" />
-													<span className="rounded-full bg-white px-4 py-2">{creating ? "Creating..." : "Create on Spotify"}</span>
+												<button onClick={handleCreateOnSpotify} disabled={creating} className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-60 disabled:hover:scale-100 mt-2">
+													{creating ? "Creating..." : "Create on Spotify"}
 												</button>
 											)}
 										</div>
@@ -398,8 +422,8 @@ export default function GeneratePage() {
 									<div className="border-t border-white/10 max-h-[420px] overflow-auto">
 										<ul className="divide-y divide-white/10">
 											{playlist.tracks.map((t, idx) => (
-												<li key={t.id} className="p-3 text-sm flex items-center gap-3 text-white/90">
-													<span className="w-6 text-white/50">{idx + 1}</span>
+												<li key={t.id} className="p-4 text-sm flex items-center gap-4 text-white/90 hover:bg-white/5 transition-colors">
+													<span className="w-6 text-white/50 font-mono text-xs">{idx + 1}</span>
 													<div className="flex-1">
 														<div className="font-medium text-white flex items-center gap-2">
 															{t.title}
@@ -409,7 +433,7 @@ export default function GeneratePage() {
 																</span>
 															)}
 														</div>
-														<div className="text-white/60">{t.artist}</div>
+														<div className="text-white/60 text-sm">{t.artist}</div>
 													</div>
 												</li>
 											))}

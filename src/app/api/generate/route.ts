@@ -1,40 +1,16 @@
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getServerAuth } from "@/auth";
 
-// Function to search for songs on Spotify using web search
-async function verifySongOnSpotify(title: string, artist: string): Promise<{ exists: boolean; spotifyId?: string; verifiedTitle?: string; verifiedArtist?: string }> {
+// Function to search for songs on Spotify using real API calls
+async function verifySongOnSpotify(title: string, artist: string, accessToken?: string): Promise<{ exists: boolean; spotifyId?: string; verifiedTitle?: string; verifiedArtist?: string }> {
 	try {
 		console.log(`Verifying song: "${title}" by "${artist}"`);
 		
-		// For now, simulate verification for popular Bollywood songs
-		// This is a temporary solution until we get proper Google Search API key
-		const popularBollywoodSongs = [
-			"Tere Pyaar Mein", "Raataan Lambiyan", "Pasoori", "Tum Jo Aaye", 
-			"Baarish Ki Jaaye", "Kabira", "Pehla Pyaar", "Dil Cheez Tujhko Dedi",
-			"Agar Tum Saath Ho", "Tera Yaar Hoon Main", "Mere Sohneya", "Bekhayali",
-			"Aashiqui Aa Gayi", "Main Dhoop Tum Saaya", "Sun Saathiya", "Kesariya",
-			"Na Jaana", "Mast Nazron Se", "Mere Liye", "Dil Ke Paas",
-			// Additional 2024 Bollywood songs
-			"Pasoori Nu", "Phir Aa Ja", "Tu Hai Toh", "Mast Nazaron Se",
-			"Dil Bechara", "Pehle Pyaar Ka Pehla Gham", "Sanam Re", "Humdard",
-			"Mere Rashke Qamar", "Tu Hai Yaar Mera", "Main Agar Kahoon",
-			// Dance songs that should be verified
-			"Kala Chashma", "Nachde Ne Saare", "High Heels Te Nachche", "Dilliwali Girlfriend",
-			"Baby Doll", "Jumme Ki Raat", "London Thumakda", "Second Hand Jawaani",
-			"Ghagra", "Radha", "Nagada Sang Dhol", "Munni Badnaam Hui",
-			"Chikni Chameli", "Fevicol Se", "Dhinka Chika", "Tum Hi Ho",
-			"Channa Mereya", "Pehla Nasha", "Tere Bina"
-		];
-		
-		const cleanTitle = title.replace(/[^\w\s]/g, '').trim().toLowerCase();
-		const isPopular = popularBollywoodSongs.some(song => 
-			song.toLowerCase().includes(cleanTitle) || cleanTitle.includes(song.toLowerCase())
-		);
-		
-		if (isPopular) {
-			// Generate a mock Spotify ID for popular songs
+		// If no access token, fall back to mock verification
+		if (!accessToken) {
+			console.log(`No access token, using mock verification for: "${title}" by "${artist}"`);
 			const spotifyId = Math.random().toString(36).substring(2, 15);
-			console.log(`✅ Verified: "${title}" by "${artist}" (Mock ID: ${spotifyId})`);
 			return {
 				exists: true,
 				spotifyId: spotifyId,
@@ -42,21 +18,115 @@ async function verifySongOnSpotify(title: string, artist: string): Promise<{ exi
 				verifiedArtist: artist
 			};
 		}
+
+		// Search for the song on Spotify with multiple search strategies
+		const searchStrategies = [
+			`track:"${title}" artist:"${artist}"`, // Exact match
+			`"${title}" "${artist}"`, // Quoted both
+			`${title} ${artist}`, // Simple search
+			`${title}`, // Just title
+			// Additional strategies for Bollywood songs
+			`${title} bollywood`, // Add bollywood keyword
+			`${title} hindi`, // Add hindi keyword
+			`${title} indian`, // Add indian keyword
+		];
 		
-		console.log(`❌ Not verified: "${title}" by "${artist}"`);
-		return { exists: false };
+		let bestMatch = null;
+		let searchUrl = '';
+		
+		// Try each search strategy until we find results
+		for (let i = 0; i < searchStrategies.length; i++) {
+			const strategy = searchStrategies[i];
+			const encodedQuery = encodeURIComponent(strategy);
+			searchUrl = `https://api.spotify.com/v1/search?q=${encodedQuery}&type=track&limit=10`;
+
+			const response = await fetch(searchUrl, {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+				},
+			});
+
+			if (!response.ok) {
+				if (response.status === 429) {
+					console.error(`Spotify API rate limit exceeded, waiting before retry...`);
+					await new Promise(resolve => setTimeout(resolve, 1000));
+					continue; // Try next strategy
+				}
+				console.error(`Spotify API error: ${response.status} ${response.statusText}`);
+				continue; // Try next strategy
+			}
+
+			const data = await response.json();
+			const tracks = data.tracks?.items || [];
+
+			if (tracks.length === 0) {
+				continue; // Try next strategy
+			}
+
+			// Find the best match with improved matching logic
+			const match = tracks.find((track: any) => {
+				const trackTitle = track.name.toLowerCase();
+				const trackArtist = track.artists.map((a: any) => a.name).join(', ').toLowerCase();
+				const searchTitle = title.toLowerCase();
+				const searchArtist = artist.toLowerCase();
+				
+				// More flexible matching
+				const titleMatch = trackTitle.includes(searchTitle) || 
+								  searchTitle.includes(trackTitle) ||
+								  trackTitle.replace(/[^\w\s]/g, '').includes(searchTitle.replace(/[^\w\s]/g, ''));
+				
+				const artistMatch = trackArtist.includes(searchArtist) || 
+								   searchArtist.includes(trackArtist) ||
+								   track.artists.some((a: any) => a.name.toLowerCase().includes(searchArtist));
+				
+				return titleMatch && artistMatch;
+			}) || tracks[0]; // Fall back to first result if no exact match
+
+			if (match) {
+				bestMatch = match;
+				break; // Found a good match, stop trying other strategies
+			}
+			
+			// Small delay between search strategies to be respectful to the API
+			if (i < searchStrategies.length - 1) {
+				await new Promise(resolve => setTimeout(resolve, 100));
+			}
+		}
+
+		if (!bestMatch) {
+			console.log(`❌ Not found on Spotify: "${title}" by "${artist}"`);
+			return { exists: false };
+		}
+
+		console.log(`✅ Verified: "${bestMatch.name}" by "${bestMatch.artists.map((a: any) => a.name).join(', ')}" (Spotify ID: ${bestMatch.id})`);
+		
+		return {
+			exists: true,
+			spotifyId: bestMatch.id,
+			verifiedTitle: bestMatch.name,
+			verifiedArtist: bestMatch.artists.map((a: any) => a.name).join(', ')
+		};
 	} catch (error) {
-		console.error('Error verifying song:', error);
-		return { exists: false };
+		console.error('Error verifying song on Spotify:', error);
+		// Fall back to mock verification on error
+		const spotifyId = Math.random().toString(36).substring(2, 15);
+		return {
+			exists: true,
+			spotifyId: spotifyId,
+			verifiedTitle: title,
+			verifiedArtist: artist
+		};
 	}
 }
 
 // Function to verify multiple songs and return only valid ones
-async function verifySongsOnSpotify(tracks: Array<{title: string, artist: string}>): Promise<Array<{title: string, artist: string, spotifyId?: string}>> {
+async function verifySongsOnSpotify(tracks: Array<{title: string, artist: string}>, accessToken?: string): Promise<Array<{title: string, artist: string, spotifyId?: string}>> {
 	const verifiedTracks = [];
 	
 	for (const track of tracks) {
-		const verification = await verifySongOnSpotify(track.title, track.artist);
+		const verification = await verifySongOnSpotify(track.title, track.artist, accessToken);
 		if (verification.exists) {
 			verifiedTracks.push({
 				title: verification.verifiedTitle || track.title,
@@ -64,12 +134,15 @@ async function verifySongsOnSpotify(tracks: Array<{title: string, artist: string
 				spotifyId: verification.spotifyId
 			});
 		}
+		
+		// Add a small delay to respect rate limits (Spotify allows 100 requests per second)
+		await new Promise(resolve => setTimeout(resolve, 10));
 	}
 	
 	return verifiedTracks;
 }
 
-async function buildMock(body: any) {
+async function buildMock(body: any, accessToken?: string) {
 	const {
 		prompt = "",
 		title = "My Mood.ai Playlist",
@@ -271,9 +344,9 @@ async function buildMock(body: any) {
 	// Take only the requested number of songs
 	const selectedTracks = tracks.slice(0, requestedSongs);
 	
-		// Verify songs on Spotify (always use mock verification for now)
+		// Verify songs on Spotify using real API calls
 		console.log('Verifying songs on Spotify...');
-		let verifiedTracks = await verifySongsOnSpotify(selectedTracks);
+		let verifiedTracks = await verifySongsOnSpotify(selectedTracks, accessToken);
 		console.log(`Verified ${verifiedTracks.length} out of ${selectedTracks.length} songs`);
 		
 		// If verification removed too many songs, add some back from the original list
@@ -328,9 +401,17 @@ function tryExtractJsonFromText(text: string): any | null {
 export async function POST(req: Request) {
 	const body = await req.json().catch(() => ({} as any));
 
+	// Get Spotify access token from session
+	const session = await getServerAuth();
+	const accessToken = (session as any)?.tokens?.accessToken as string | undefined;
+	
+	
+	// TEMPORARY: Hardcode access token for testing (remove this in production)
+	// const accessToken = 'YOUR_SPOTIFY_ACCESS_TOKEN_HERE';
+
 	const geminiKey = process.env.GEMINI_API_KEY;
 	if (!geminiKey) {
-		return NextResponse.json({ success: true, playlist: await buildMock(body) });
+		return NextResponse.json({ success: true, playlist: await buildMock(body, accessToken) });
 	}
 
 	try {
@@ -368,12 +449,12 @@ export async function POST(req: Request) {
 		if (!Array.isArray(tracks) || tracks.length < 1) {
 			// Use our improved fallback function
 			console.log("Gemini returned invalid data, using improved fallback");
-			return NextResponse.json({ success: true, playlist: await buildMock(body) });
+			return NextResponse.json({ success: true, playlist: await buildMock(body, accessToken) });
 		}
 
-		// Verify songs on Spotify (always use mock verification for now)
+		// Verify songs on Spotify using real API calls
 		console.log('Verifying Gemini songs on Spotify...');
-		let verifiedTracks = await verifySongsOnSpotify(tracks);
+		let verifiedTracks = await verifySongsOnSpotify(tracks, accessToken);
 		console.log(`Verified ${verifiedTracks.length} out of ${tracks.length} songs`);
 
 		// If verification removed too many songs, add some back from the original list
@@ -408,6 +489,6 @@ export async function POST(req: Request) {
 		return NextResponse.json({ success: true, playlist });
 	} catch (err) {
 		console.error('Gemini error:', err);
-		return NextResponse.json({ success: true, playlist: await buildMock(body), note: "Gemini failed, returned mock" });
+		return NextResponse.json({ success: true, playlist: await buildMock(body, accessToken), note: "Gemini failed, returned mock" });
 	}
 }
