@@ -1,6 +1,6 @@
 # 🎵 Mood.ai - AI-Powered Playlist Curator
 
-<div align="center">
+<div align="center"> 
 
 ![Mood.ai Banner](https://img.shields.io/badge/Mood.ai-AI%20Playlist%20Curator-purple?style=for-the-badge&logo=spotify&logoColor=white)
 
