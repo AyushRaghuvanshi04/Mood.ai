@@ -1,7 +1,7 @@
 # 🎵 Mood.ai - AI-Powered Playlist Curator
 
 <div align="center"> 
-
+ 
 ![Mood.ai Banner](https://img.shields.io/badge/Mood.ai-AI%20Playlist%20Curator-purple?style=for-the-badge&logo=spotify&logoColor=white)
 
 **Create personalized Spotify playlists with AI-powered curation, multi-language support, and web search verification**
