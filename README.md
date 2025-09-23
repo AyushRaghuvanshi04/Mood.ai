@@ -11,7 +11,7 @@
 [![Spotify](https://img.shields.io/badge/Spotify-API-1DB954?style=flat&logo=spotify)](https://developer.spotify.com/)
 [![Google AI](https://img.shields.io/badge/Google-Gemini-4285F4?style=flat&logo=google)](https://ai.google.dev/)
 
-</div>
+</div> 
 
 ## ✨ Features
 
