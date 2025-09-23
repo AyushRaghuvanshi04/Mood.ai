@@ -114,7 +114,6 @@ export const authOptions: NextAuthOptions = {
 			return session as any;
 		},
 	},
-	secret: process.env.NEXTAUTH_SECRET,
 };
 
 export async function getServerAuth() {

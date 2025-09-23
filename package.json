@@ -19,6 +19,7 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
+    "test": "echo \"No tests specified\" && exit 0",
     "setup": "node setup-env.js",
     "postinstall": "node setup-env.js"
   },
