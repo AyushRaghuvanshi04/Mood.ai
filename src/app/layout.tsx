@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mood.ai - AI Playlist Generator",
+  title: "SonifyAI - AI Playlist Curator",
   description: "Create the perfect playlist for any mood with AI-powered music curation",
 };
 

@@ -1,24 +1,26 @@
 {
-  "name": "mood-ai",
+  "name": "sonify-ai",
   "version": "1.0.0",
   "description": "AI-powered playlist curator with Spotify integration, multi-language support, and web search verification",
   "keywords": ["ai", "spotify", "playlist", "music", "nextjs", "typescript", "generative-ai", "web-search"],
   "author": "Ayush Raghuvanshi <ayush.raghuvanshi2004@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/AyushRaghuvanshi04/Mood.ai#readme",
+  "homepage": "https://github.com/AyushRaghuvanshi04/SonifyAI#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AyushRaghuvanshi04/Mood.ai.git"
+    "url": "https://github.com/AyushRaghuvanshi04/SonifyAI.git"
   },
   "bugs": {
-    "url": "https://github.com/AyushRaghuvanshi04/Mood.ai/issues"
+    "url": "https://github.com/AyushRaghuvanshi04/SonifyAI/issues"
   },
   "private": false,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "setup": "node setup-env.js",
+    "postinstall": "node setup-env.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

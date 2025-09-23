@@ -1,6 +1,6 @@
-# Contributing to Mood.ai
+# Contributing to SonifyAI
 
-Thank you for your interest in contributing to Mood.ai! 🎵
+Thank you for your interest in contributing to SonifyAI! 🎵
 
 ## 🤝 How to Contribute
 
@@ -186,4 +186,4 @@ Contributors will be recognized in:
 - Release notes
 - Project documentation
 
-Thank you for contributing to Mood.ai! 🚀
+Thank you for contributing to SonifyAI! 🚀

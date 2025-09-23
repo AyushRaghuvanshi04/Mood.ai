@@ -22,7 +22,7 @@ export default async function ProfilePage() {
 						href="/generate" 
 						className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
 					>
-						Back to Generator
+						Back to Curator
 					</Link>
 				</div>
 

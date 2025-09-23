@@ -20,10 +20,10 @@ export default async function Home() {
         </div>
 
         <h1 className="mt-6 bg-gradient-to-b from-white via-white to-white/70 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent sm:text-6xl">
-          Mood.ai
+          SonifyAI
         </h1>
         <p className="mt-3 text-xl font-medium text-white/90 sm:text-2xl">
-          AI-Powered Playlist Generator
+          AI-Powered Playlist Curator
         </p>
         <p className="mt-4 max-w-2xl text-lg text-white/75 sm:text-xl leading-relaxed">
           Type a mood, scene, or a few emojis. We'll conjure tracks with AI and build the perfect playlist for you.
@@ -50,7 +50,7 @@ export default async function Home() {
               href="/generate"
               className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
             >
-              Open Generator
+              Open Curator
             </Link>
           )}
           <a
@@ -68,7 +68,7 @@ export default async function Home() {
           </div>
           <div className="rounded-xl border border-white/10 bg-white/5 p-5 text-left backdrop-blur-sm">
             <div className="text-2xl font-bold text-white">AI</div>
-            <div className="text-sm text-white/70 mt-1">powered by Mood.ai</div>
+            <div className="text-sm text-white/70 mt-1">powered by SonifyAI</div>
           </div>
           <div className="rounded-xl border border-white/10 bg-white/5 p-5 text-left backdrop-blur-sm">
             <div className="text-2xl font-bold text-white">1‑click</div>

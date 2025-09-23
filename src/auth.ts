@@ -50,7 +50,12 @@ export const authOptions: NextAuthOptions = {
 		SpotifyProvider({
 			clientId: process.env.SPOTIFY_CLIENT_ID!,
 			clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
-			authorization: `https://accounts.spotify.com/authorize?scope=${encodeURIComponent(spotifyScopes)}`,
+			authorization: {
+				url: "https://accounts.spotify.com/authorize",
+				params: {
+					scope: spotifyScopes,
+				},
+			},
 		}),
 	],
 	pages: {
@@ -61,7 +66,7 @@ export const authOptions: NextAuthOptions = {
 	session: {
 		strategy: "jwt",
 	},
-	useSecureCookies: false, // Disable secure cookies for localhost
+	useSecureCookies: process.env.NODE_ENV === "production",
 	secret: process.env.NEXTAUTH_SECRET,
 	callbacks: {
 		async redirect({ url, baseUrl }) {
@@ -69,6 +74,8 @@ export const authOptions: NextAuthOptions = {
 			if (url.startsWith("/")) return `${baseUrl}${url}`;
 			// Allows callback URLs on the same origin
 			else if (new URL(url).origin === baseUrl) return url;
+			// Handle localhost development
+			if (baseUrl.includes("localhost") && url.includes("localhost")) return url;
 			return baseUrl;
 		},
 		async jwt({ token, account, user }) {

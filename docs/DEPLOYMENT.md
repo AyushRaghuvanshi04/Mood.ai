@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This guide covers deploying Mood.ai to various platforms.
+This guide covers deploying SonifyAI to various platforms.
 
 ## 🚀 Vercel (Recommended)
 
@@ -116,10 +116,10 @@ CMD ["npm", "start"]
 
 ```bash
 # Build image
-docker build -t mood-ai .
+docker build -t sonify-ai .
 
 # Run container
-docker run -p 3000:3000 --env-file .env.local mood-ai
+docker run -p 3000:3000 --env-file .env.local sonify-ai
 ```
 
 ### 3. Docker Compose
@@ -127,7 +127,7 @@ docker run -p 3000:3000 --env-file .env.local mood-ai
 ```yaml
 version: '3.8'
 services:
-  mood-ai:
+  sonify-ai:
     build: .
     ports:
       - "3000:3000"
@@ -156,7 +156,7 @@ GEMINI_API_KEY=your-gemini-api-key
 ```env
 GOOGLE_SEARCH_API_KEY=your-google-search-api-key
 GOOGLE_SEARCH_ENGINE_ID=your-custom-search-engine-id
-APP_PLAYLIST_PREFIX=Mood.ai
+APP_PLAYLIST_PREFIX=SonifyAI
 ```
 
 ## 🔐 Security Considerations
@@ -265,6 +265,6 @@ jobs:
 ## 📞 Support
 
 For deployment issues:
-1. Check the [GitHub Issues](https://github.com/AyushRaghuvanshi04/Mood.ai/issues)
+1. Check the [GitHub Issues](https://github.com/AyushRaghuvanshi04/SonifyAI/issues)
 2. Create a new issue with deployment details
 3. Contact: ayush.raghuvanshi2004@gmail.com

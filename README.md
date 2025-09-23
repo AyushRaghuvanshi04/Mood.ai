@@ -1,8 +1,8 @@
-# 🎵 Mood.ai - AI-Powered Playlist Curator
+# 🎵 SonifyAI - AI-Powered Playlist Curator
 
 <div align="center">
 
-![Mood.ai Banner](https://img.shields.io/badge/Mood.ai-AI%20Playlist%20Curator-purple?style=for-the-badge&logo=spotify&logoColor=white)
+![SonifyAI Banner](https://img.shields.io/badge/SonifyAI-AI%20Playlist%20Curator-purple?style=for-the-badge&logo=spotify&logoColor=white)
 
 **Create personalized Spotify playlists with AI-powered curation, multi-language support, and web search verification**
 
@@ -85,8 +85,8 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/AyushRaghuvanshi04/Mood.ai.git
-   cd Mood.ai
+   git clone https://github.com/AyushRaghuvanshi04/SonifyAI.git
+   cd SonifyAI
    ```
 
 2. **Install dependencies**
@@ -142,7 +142,7 @@ GOOGLE_SEARCH_API_KEY=your-google-search-api-key
 GOOGLE_SEARCH_ENGINE_ID=your-custom-search-engine-id
 
 # App Configuration
-APP_PLAYLIST_PREFIX=Mood.ai
+APP_PLAYLIST_PREFIX=SonifyAI
 ```
 
 ### API Setup Instructions
