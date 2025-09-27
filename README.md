@@ -14,7 +14,7 @@
 </div> 
 
 ## ✨ Features
-
+ 
 ### 🎯 **Core Functionality**
 - **AI-Powered Curation**: Advanced AI understands your mood and suggests relevant songs
 - **Spotify Integration**: Seamlessly create and save playlists directly to your Spotify account
